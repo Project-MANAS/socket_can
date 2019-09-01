@@ -24,7 +24,7 @@ class SocketCAN
  public:
   SocketCAN(const char * ifname);
 
-  SocketCAN(const char * ifname, uint timeout);
+  SocketCAN(const char * ifname, long timeout);
 
   ~SocketCAN();
 
