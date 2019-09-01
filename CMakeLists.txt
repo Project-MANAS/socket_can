@@ -3,6 +3,13 @@ project(socket_can)
 
 find_package(catkin REQUIRED)
 
+catkin_package(
+  INCLUDE_DIRS
+    include
+  LIBRARIES
+    socket_can
+)
+
 include_directories(
   include
 )
@@ -14,9 +21,7 @@ add_library(
 
 install(
   TARGETS socket_can
-    ARCHIVE DESTINATION lib/${PROJECT_NAME}
-    LIBRARY DESTINATION lib/${PROJECT_NAME}
-    RUNTIME DESTINATION lib/${PROJECT_NAME}
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    RUNTIME DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
-
-catkin_package()
