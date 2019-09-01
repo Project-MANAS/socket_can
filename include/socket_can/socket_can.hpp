@@ -22,8 +22,9 @@ namespace socket_can
 class SocketCAN
 {
  public:
-
   SocketCAN(const char * ifname);
+
+  SocketCAN(const char * ifname, uint timeout);
 
   ~SocketCAN();
 
@@ -41,6 +42,8 @@ class SocketCAN
   int socket_;
 
   bool connected_;
+
+  long timeout_;
 };
 }
 

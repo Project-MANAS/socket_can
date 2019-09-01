@@ -4,7 +4,16 @@ namespace socket_can
 {
 SocketCAN::SocketCAN(const char * ifname) :
   ifname_(ifname),
-  connected_(false)
+  connected_(false),
+  timeout_(1000000l)
+{
+  init();
+}
+
+SocketCAN::SocketCAN(const char * ifname, uint timeout) :
+    ifname_(ifname),
+    connected_(false),
+    timeout_(timeout)
 {
   init();
 }
@@ -39,6 +48,13 @@ void SocketCAN::init()
     return;
   }
 
+  struct timeval timeout{};
+  timeout.tv_usec = timeout_;
+
+  if (setsockopt(socket_, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0) {
+    perror("Setting timeout failed");
+  }
+
   connected_ = true;
 }
 
@@ -67,8 +83,9 @@ bool SocketCAN::read(uint32_t * can_id, uint8_t * dlc, uint8_t * data)
   if (num_bytes != sizeof(struct can_frame)) {
     return false;
   }
-  memcpy(can_id, &frame.can_id, sizeof(frame.can_id));
-  memcpy(dlc, &frame.can_dlc, sizeof(frame.can_dlc));
+
+  (* can_id) = frame.can_id;
+  (* dlc) = frame.can_dlc;
   memcpy(data, frame.data, sizeof(frame.data));
 
   return true;
