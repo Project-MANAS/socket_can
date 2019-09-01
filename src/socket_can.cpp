@@ -48,6 +48,21 @@ void SocketCAN::init()
     return;
   }
 
+  int error = 0;
+  socklen_t len = sizeof (error);
+  int retval = getsockopt (socket_, SOL_SOCKET, SO_ERROR, &error, &len);
+  if (retval != 0) {
+    /* there was a problem getting the error code */
+    printf("Error getting socket error code: %s\n", strerror(retval));
+    return;
+  }
+
+  if (error != 0) {
+    /* socket has a non zero error status */
+    printf("Socket error: %s\n", strerror(error));
+    return;
+  }
+
   struct timeval timeout{};
   timeout.tv_sec = (timeout_ / 1000);
   timeout.tv_usec = (timeout_ % 1000) * 1000;
