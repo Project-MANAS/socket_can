@@ -23,7 +23,7 @@ class SocketCAN
 {
  public:
 
-  SocketCAN();
+  SocketCAN(const char * ifname);
 
   ~SocketCAN();
 
@@ -31,10 +31,12 @@ class SocketCAN
 
   bool write(uint32_t frame_id, uint8_t dlc, uint8_t * data);
 
-  bool read(size_t size, uint8_t * data);
+  bool read(uint32_t * can_id, uint8_t * dlc, uint8_t * data);
 
  private:
   void init();
+
+  const char * ifname_;
 
   int socket_;
 

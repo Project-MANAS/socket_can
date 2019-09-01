@@ -2,7 +2,8 @@
 
 namespace socket_can
 {
-SocketCAN::SocketCAN() :
+SocketCAN::SocketCAN(const char * ifname) :
+  ifname_(ifname),
   connected_(false)
 {
   init();
@@ -24,15 +25,14 @@ void SocketCAN::init()
   }
 
   struct ifreq ifr{};
-  const char * ifname = "vcan0";
-  strcpy(ifr.ifr_name, ifname);
+  strcpy(ifr.ifr_name, ifname_);
   ioctl(socket_, SIOCGIFINDEX, &ifr);
 
   struct sockaddr_can addr{};
   addr.can_family  = AF_CAN;
   addr.can_ifindex = ifr.ifr_ifindex;
 
-  printf("%s at index %d\n", ifname, ifr.ifr_ifindex);
+  printf("%s at index %d\n", ifname_, ifr.ifr_ifindex);
 
   if(bind(socket_, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
     perror("Error in socket bind");
@@ -60,14 +60,17 @@ bool SocketCAN::write(uint32_t can_id, uint8_t dlc, uint8_t * data)
   return num_bytes > 0;
 }
 
-bool SocketCAN::read(size_t size, uint8_t * data)
+bool SocketCAN::read(uint32_t * can_id, uint8_t * dlc, uint8_t * data)
 {
   struct can_frame frame{};
-  auto num_bytes = ::read(socket_, &frame, size);
-  if (num_bytes != size) {
+  auto num_bytes = ::read(socket_, &frame, sizeof(struct can_frame));
+  if (num_bytes != sizeof(struct can_frame)) {
     return false;
   }
-  memcpy(data, frame.data, sizeof(size));
+  memcpy(can_id, &frame.can_id, sizeof(frame.can_id));
+  memcpy(dlc, &frame.can_dlc, sizeof(frame.can_dlc));
+  memcpy(data, frame.data, sizeof(frame.data));
+
   return true;
 }
 }
