@@ -1,27 +1,77 @@
-cmake_minimum_required(VERSION 3.5)
-project(socket_can)
+if($ENV{ROS_VERSION} EQUAL 1)
+    cmake_minimum_required(VERSION 3.5)
+    project(socket_can)
 
-find_package(catkin REQUIRED)
+    find_package(catkin REQUIRED)
 
-catkin_package(
-  INCLUDE_DIRS
+    catkin_package(
+      INCLUDE_DIRS
+        include
+      LIBRARIES
+        socket_can
+    )
+
+    include_directories(
+      include
+    )
+
+    add_library(
+      socket_can
+        src/socket_can.cpp
+    )
+
+    install(
+      TARGETS socket_can
+        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    )
+else()
+  cmake_minimum_required(VERSION 3.5)
+  project(socket_can)
+
+  set(CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
+
+  add_compile_options(-std=c++14)
+
+  find_package(ament_cmake REQUIRED)
+
+  add_library(${PROJECT_NAME} STATIC
+    src/${PROJECT_NAME}.cpp
+  )
+
+  target_include_directories(${PROJECT_NAME} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+  )
+
+  install(
+    DIRECTORY include/
+    DESTINATION include
+  )
+
+  install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT export_${PROJECT_NAME}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    DESTINATION lib/${PROJECT_NAME}
+  )
+
+  ament_export_include_directories(
     include
-  LIBRARIES
-    socket_can
-)
+  )
 
-include_directories(
-  include
-)
+  ament_export_interfaces(
+    export_${PROJECT_NAME}
+  )
 
-add_library(
-  socket_can
-    src/socket_can.cpp
-)
+  ament_export_libraries(
+    ${PROJECT_NAME}
+  )
 
-install(
-  TARGETS socket_can
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-)
+  ament_package()
+
+endif()
+
