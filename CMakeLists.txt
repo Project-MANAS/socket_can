@@ -30,20 +30,16 @@ else()
   cmake_minimum_required(VERSION 3.5)
   project(socket_can)
 
-  set(CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
-
   add_compile_options(-std=c++14)
 
   find_package(ament_cmake REQUIRED)
+  
+  include_directories(include)
 
   add_library(${PROJECT_NAME} STATIC
     src/${PROJECT_NAME}.cpp
   )
 
-  target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-  )
 
   install(
     DIRECTORY include/
@@ -52,26 +48,13 @@ else()
 
   install(
     TARGETS ${PROJECT_NAME}
-    EXPORT export_${PROJECT_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
-    DESTINATION lib/${PROJECT_NAME}
   )
 
-  ament_export_include_directories(
-    include
-  )
-
-  ament_export_interfaces(
-    export_${PROJECT_NAME}
-  )
-
-  ament_export_libraries(
-    ${PROJECT_NAME}
-  )
-
+  ament_export_include_directories(include)
+  ament_export_libraries(${PROJECT_NAME})
   ament_package()
 
 endif()
-
